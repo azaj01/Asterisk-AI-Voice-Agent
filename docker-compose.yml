@@ -30,7 +30,11 @@ services:
     # Container runs as appuser (member of asterisk group via Dockerfile)
     # Files inherit group ownership from setgid directory (set up by preflight.sh)
     user: "appuser"
-    network_mode: host
+    # network_mode: host
+    ports:
+      - "15000:15000"
+      - "9000:9000"
+      - "8090:8090"
     volumes:
       - ./src:/app/src
       - ./main.py:/app/main.py
@@ -150,7 +154,9 @@ services:
       dockerfile: Dockerfile
       network: host
     container_name: admin_ui
-    network_mode: host
+    # network_mode: host
+    ports:
+      - "3003:3003"
     # Grant docker socket access to non-root user (appuser runs as UID 1000)
     # Docker socket is typically owned by group 'docker' (GID varies by distro/host).
     # Override DOCKER_GID in .env if your system uses a different GID.

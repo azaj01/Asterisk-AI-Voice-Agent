@@ -297,3 +297,6 @@ data/*.db-journal
 data/*.db-wal
 data/*.db-shm
 !data/.gitkeep
+*.bak.*
+.env.bak.*
+*.resolved

@@ -1,12 +1,12 @@
-# Asterisk AI Voice Agent - Installation Guide (v6.2.0)
+# Asterisk AI Voice Agent - Installation Guide (v6.0.0)
 
-This guide provides detailed instructions for setting up the Asterisk AI Voice Agent v6.2.0 on your server.
+This guide provides detailed instructions for setting up the Asterisk AI Voice Agent v6.0.0 on your server.
 
 ## Three Setup Paths
 
 Choose the path that best fits your experience level:
 
-## Upgrade to v6.2.0 (Existing Checkout)
+## Upgrade from v5.3.1 → v6.0.0 (Existing Checkout)
 
 This section is for operators upgrading an existing repo checkout (not a fresh install).
 
@@ -14,16 +14,15 @@ This section is for operators upgrading an existing repo checkout (not a fresh i
 
 - Backup `.env`
 - Backup `config/ai-agent.yaml`
-- Backup `config/ai-agent.local.yaml` (if it exists — contains your operator overrides)
 - If you rely on Call History persistence, backup `./data` as well
 
 ### 1) Pull the new release
 
-To upgrade to the tagged `v6.2.0` release (once the tag is published):
+To upgrade to the tagged `v6.0.0` release (once the tag is published):
 
 ```bash
 git fetch --tags
-git checkout v6.2.0
+git checkout v6.0.0
 ```
 
 If the tag is not published yet, track `main` temporarily:
@@ -112,10 +111,6 @@ Preflight ensures required host directories exist with correct permissions, incl
 - `./data` (Call History SQLite and runtime state)
 - `./models/{stt,tts,llm,kroko}` (mounted into `ai_engine` and `local_ai_server` as `/app/models`)
 - `./asterisk_media/ai-generated` (mounted as `/mnt/asterisk_media/ai-generated` for generated audio)
-
-Preflight also audits Asterisk configuration (when Asterisk is on the same host):
-- Checks ARI enabled, ARI user, HTTP server, dialplan context, and required modules
-- Writes results to `data/asterisk_status.json` — the Admin UI **System → Asterisk** page reads this manifest to display a configuration checklist with guided fix commands
 
 > Note: Admin UI health checks validate the media directory from within the `admin_ui` container.
 > On some systems Asterisk uses a non-default group ID; newer releases auto-detect this at `admin_ui` startup so the UI doesn't incorrectly warn after reboot.
@@ -257,7 +252,7 @@ agent setup
 
 **Best for:** Headless servers, scripted deployments, CLI preference
 
-> Note: `agent quickstart` and `agent init` are still available for backward compatibility, but `agent setup` is the recommended CLI wizard for v6.2.0.
+> Note: `agent quickstart` and `agent init` are still available for backward compatibility, but `agent setup` is the recommended CLI wizard for v6.0.0.
 
 ---
 
@@ -383,78 +378,35 @@ Before you begin, ensure your system meets the following requirements:
 If your host uses **rootless Docker**, the Admin UI needs the rootless socket mounted. Set `DOCKER_SOCK` before starting `admin_ui`:
 
 ```bash
-export DOCKER_SOCK=/run/user/$(id -u)/docker.sock
-docker compose -p asterisk-ai-voice-agent up -d --build --force-recreate admin_ui
+cp .env.example .env
 ```
 
-`./preflight.sh` prints the exact command for your system when it detects rootless Docker.
+**Required Variables**:
 
-## 2. Installation Steps
+- `ASTERISK_ARI_URL`, `ASTERISK_ARI_USER`, `ASTERISK_ARI_PASSWORD`: Connection to your PBX.
+- `AI_PROVIDER_API_KEY`: At least one provider key (e.g., `OPENAI_API_KEY`).
+- `JWT_SECRET`: For Admin UI security (generate via `preflight.sh` or manually).
 
-The installation is handled by an interactive script that will guide you through the process.
+### 3. Directory Structure
 
-### Step 2.1: Clone the Repository
+Ensure the host directory structure is correct, as these are mounted into containers:
 
-First, clone the project repository to a directory on your server.
+- `config/`: Configuration files.
+- `data/`: SQLite database.
+- `asterisk_media/`: Shared media files.
+
+### 4. Build and Start
+
+Use Docker Compose to start the services.
+
+**Standard Start (Co-located or Remote)**:
 
 ```bash
-git clone https://github.com/hkjarral/Asterisk-AI-Voice-Agent.git
-cd Asterisk-AI-Voice-Agent
+docker compose up -d --build
 ```
 
-### Step 2.2: Run the Installation Script
-
-Execute the `install.sh` script. You will need to run it with `sudo` if your user does not have permissions to run Docker.
-
-```bash
-./install.sh
-```
-
-The script will perform the following actions:
-
-1. **System Checks**: Verify that Docker is installed and running.
-2. **Interactive Setup**: Launch a wizard to collect configuration details.
-
-### Step 2.3: Interactive Setup Wizard
-
-The wizard will prompt you for the following information.
-
-#### AI Provider Selection
-
-You will be asked to choose an AI provider.
-
-- **[1] OpenAI Realtime**: Out-of-the-box realtime voice path (cloud).
-- **[2] Deepgram Voice Agent**: Cloud STT/TTS with strong latency/quality.
-- **[3] Local Hybrid**: Local STT/TTS + cloud LLM (audio stays local).
-
-#### Provider Configuration
-
-Based on your selection, you will need to provide API keys.
-
-- **Deepgram API Key**: Required if you select the Deepgram provider.
-- **OpenAI API Key**: Required if you select any OpenAI-based pipeline.
-
-#### Asterisk ARI Configuration
-
-You will need to provide the connection details for your Asterisk server's ARI.
-
-- **Asterisk Host**: The hostname or IP address of your Asterisk server.
-- **ARI Username**: The username for an ARI user.
-- **ARI Password**: The password for the ARI user.
-
-### What You'll Need (at a glance)
-
-- A Linux server with Docker + Docker Compose
-- Asterisk 18+ or FreePBX 15+ with ARI enabled
-- API keys for your chosen provider (optional): `OPENAI_API_KEY`, `DEEPGRAM_API_KEY`
-
-### Step 2.4: Configuration File Generation
-
-After you complete the wizard, the script will create a `.env` file in the project root with all your settings. You can manually edit this file later if you need to make changes.
-
-### Step 2.5: Start the Service
-
-Once the configuration is complete, the script will prompt you to build and start the Docker container. You can also do this manually.
+**With GPU Support (Local LLMs)**:
+*Requires NVIDIA Container Toolkit.*
 
 ```bash
 docker compose -p asterisk-ai-voice-agent up --build -d
@@ -608,7 +560,7 @@ asterisk -rx "dialplan reload"
   - Verify you are not appending file extensions to ARI `sound:` URIs (Asterisk will add them automatically).
 
 - **No host Python 3 installed (scripts/Makefile)**:
-  - The Makefile auto-falls back to running helper scripts inside the `ai_engine` container. You'll see a hint when it does.
+  - The Makefile auto-falls back to running helper scripts inside the `ai_engine` container. You’ll see a hint when it does.
   - Check your environment:
 
         ```bash
@@ -624,46 +576,5 @@ asterisk -rx "dialplan reload"
         docker compose -p asterisk-ai-voice-agent exec -T ai_engine python /app/scripts/capture_test_logs.py --duration 40
         docker compose -p asterisk-ai-voice-agent exec -T ai_engine python /app/scripts/analyze_logs.py /app/logs/latest.json
         ```
-
-- **Container crashes with NumPy X86_V2 CPU error**:
-
-  If containers fail to start with an error like:
-
-  ```text
-  RuntimeError: NumPy was built with baseline optimizations:
-  (X86_V2) but your machine doesn't support:
-  (X86_V2).
-  ```
-
-  This means your CPU lacks SSE4.1/SSE4.2 instructions required by NumPy 2.x. This commonly occurs on:
-  - Older KVM/QEMU virtual machines with "Common KVM processor"
-  - Pre-2013 physical CPUs
-  - Some cloud VPS instances with legacy CPU emulation
-
-  **Fix**: Pin NumPy to version 1.x (compatible with older CPUs):
-
-  ```bash
-  cd /root/Asterisk-AI-Voice-Agent
-
-  # Fix ai_engine requirements
-  sed -i 's/numpy>=1.24.0/numpy>=1.24.0,<2.0/g' requirements.txt
-
-  # Fix admin_ui requirements
-  sed -i 's/numpy>=1.24.0/numpy>=1.24.0,<2.0/g' admin_ui/backend/requirements.txt
-
-  # Rebuild containers with --no-cache to force fresh install
-  docker compose -p asterisk-ai-voice-agent build --no-cache ai_engine admin_ui
-
-  # Recreate containers
-  docker compose -p asterisk-ai-voice-agent up -d --force-recreate ai_engine admin_ui
-  ```
-
-  **Verify your CPU supports X86_V2** (optional diagnostic):
-
-  ```bash
-  grep -E 'sse4_1|sse4_2' /proc/cpuinfo
-  ```
-
-  If no output, your CPU lacks the required instructions and the fix above is needed.
 
 For more advanced troubleshooting, refer to the project's main `README.md` or open an issue in the repository.
