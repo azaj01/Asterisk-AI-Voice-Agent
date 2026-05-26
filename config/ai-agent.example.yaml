@@ -203,7 +203,7 @@ providers:
   openai_realtime:
     enabled: true
     api_key: "${OPENAI_API_KEY}"
-    api_version: "beta"  # "beta" (default, broader compatibility) or "ga" (no OpenAI-Beta header)
+    api_version: "ga"  # "ga" (default; "beta" was sunset by OpenAI on 2026-05-12 — do not set "beta")
     model: "gpt-4o-realtime-preview-2024-12-17"  # GA: gpt-realtime / gpt-realtime-mini | Beta: gpt-4o-realtime-preview-*
     voice: "alloy"
     base_url: "wss://api.openai.com/v1/realtime"

@@ -6,7 +6,7 @@
   <img alt="Asterisk AI Voice Agent" src="assets/banner_light_mode.png?v=9" width="100%">
 </picture>
 
-![Version](https://img.shields.io/badge/version-6.5.2-blue.svg)
+![Version](https://img.shields.io/badge/version-6.5.3-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![Docker](https://img.shields.io/badge/docker-compose-blue.svg)
@@ -27,7 +27,7 @@ The most powerful, flexible open-source AI voice agent for Asterisk/FreePBX. Fea
 ## 📖 Table of Contents
 
 - [🚀 Quick Start](#-quick-start)
-- [🎉 What's New](#-whats-new-in-v652)
+- [🎉 What's New](#-whats-new)
 - [🌟 Why Asterisk AI Voice Agent?](#-why-asterisk-ai-voice-agent)
 - [✨ Features](#-features)
 - [🎥 Demo](#-demo)
@@ -161,10 +161,22 @@ docker compose -p asterisk-ai-voice-agent logs -f ai_engine
 
 ---
 
-## 🎉 What's New in v6.5.2
+## 🎉 What's New
 
 <details open>
-<summary><b>Latest Updates</b></summary>
+<summary><b>v6.5.3 hotfix (2026-05-25) — OpenAI Realtime restored</b></summary>
+
+OpenAI sunset the Realtime **Beta** API on 2026-05-12 and removed the `gpt-4o-realtime-preview-2024-12-17` model on 2026-05-07. Shipped `config/ai-agent.yaml` still pinned `api_version: beta` + that preview model, so every operator using OpenAI Realtime hit `error.code: beta_api_shape_disabled` and the WebSocket closed immediately. **Two-line config flip — no code change required**. The provider's GA wire-protocol path has shipped since v6.0.0; v6.5.3 just makes it the default everyone gets:
+
+- `api_version: ga` (was `beta`)
+- `model: gpt-realtime` (was `gpt-4o-realtime-preview-2024-12-17`)
+
+If you have an `ai-agent.local.yaml` that explicitly pins `api_version: beta`, remove the override or change it to `ga`. Refs: [OpenAI deprecations](https://developers.openai.com/api/docs/deprecations), [gpt-realtime](https://platform.openai.com/docs/models/gpt-realtime).
+
+</details>
+
+<details open>
+<summary><b>v6.5.2 (2026-05-24) — xAI Grok + multi-instance full-agent providers</b></summary>
 
 ### 🆕 xAI Grok Voice Agent realtime provider (NEW, v6.5.2)
 - Fifth full-agent realtime provider — structurally parallel to OpenAI Realtime and Google Live, built on a multi-instance foundation from day one

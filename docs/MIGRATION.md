@@ -4,12 +4,12 @@ This guide covers upgrading between major versions of Asterisk AI Voice Agent.
 
 ## v6.4.2 to v6.5.x
 
-**Fully back-compatible.** v6.5.0, v6.5.1, and v6.5.2 are additive — no required config changes, no breaking schema changes, no behavioral changes for existing single-instance deployments. v6.5.2 does introduce one **breaking change for multi-instance deployments**: short provider aliases (`AI_PROVIDER=openai`, `AI_PROVIDER=google`, `provider: deepgram_agent`) are now rejected at config load — use exact provider instance keys instead. See "New in v6.5.2" below for details.
+**Fully back-compatible.** v6.5.0, v6.5.1, v6.5.2, and v6.5.3 are additive — no required config changes, no breaking schema changes, no behavioral changes for existing single-instance deployments. v6.5.2 does introduce one **breaking change for multi-instance deployments**: short provider aliases (`AI_PROVIDER=openai`, `AI_PROVIDER=google`, `provider: deepgram_agent`) are now rejected at config load — use exact provider instance keys instead. v6.5.3 is a **mandatory hotfix** for OpenAI Realtime users: OpenAI sunset the Beta API on 2026-05-12, so any deployment running v6.5.2 or earlier with OpenAI Realtime will fail until upgraded.
 
 ```bash
 # Standard upgrade
 git fetch --tags
-git checkout v6.5.2
+git checkout v6.5.3
 docker compose -p asterisk-ai-voice-agent up -d --build --force-recreate
 ```
 
@@ -44,6 +44,12 @@ New in v6.5.2:
 Single-instance deployments using the canonical block names (`openai_realtime:` / `google_live:` / `deepgram:` / `elevenlabs:` / `grok:` where the YAML key equals the kind) are unaffected — only the short aliases are rejected. Audit your Asterisk dialplan `Set(AI_PROVIDER=…)` lines and any `contexts.<name>.provider:` YAML keys before upgrading.
 
 No removed config options outside the alias removal above. No required schema migrations. No required Docker volume migrations.
+
+New in v6.5.3 (hotfix — mandatory for OpenAI Realtime users):
+- **OpenAI Realtime: GA API + `gpt-realtime` model are now the shipped defaults.** OpenAI sunset the Realtime Beta API on 2026-05-12 and removed `gpt-4o-realtime-preview-2024-12-17` on 2026-05-07. The shipped `config/ai-agent.yaml` previously pinned `api_version: beta` + that preview model; v6.5.3 flips them to `api_version: ga` + `model: gpt-realtime`.
+- **Action required for operators with explicit overrides:** if your `config/ai-agent.local.yaml` (or any custom config) pins `api_version: beta` or `model: gpt-4o-realtime-preview-2024-12-17` (or any other `gpt-4o-realtime-preview-*` snapshot), **remove that override** or update it to GA — OpenAI returns `error.code: beta_api_shape_disabled` and closes the WebSocket otherwise.
+- No code change. The provider's GA wire-protocol path has shipped since v6.0.0.
+- Refs: [OpenAI deprecations](https://developers.openai.com/api/docs/deprecations), [gpt-realtime model](https://platform.openai.com/docs/models/gpt-realtime).
 
 ## v6.4.1 to v6.4.2
 

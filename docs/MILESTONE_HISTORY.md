@@ -40,6 +40,7 @@ Archive of completed development milestones for the Asterisk AI Voice Agent. For
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| v6.5.3 | May 2026 | Hotfix: flip shipped OpenAI Realtime config from `api_version: beta` + `gpt-4o-realtime-preview-2024-12-17` to `api_version: ga` + `gpt-realtime`. OpenAI sunset the Beta API on 2026-05-12 and removed the preview model on 2026-05-07. Two-line config change; provider's GA wire-protocol path has shipped since v6.0.0. |
 | v6.5.2 | May 2026 | xAI Grok Voice Agent realtime provider (5th full-agent), multi-instance full-agent providers (`acme_grok`, `globex_google_live`, …), uniform per-instance credentials UX, dashboard System Topology overhaul, ~260 admin UI tooltips, `.ulaw` call recording playback. Breaking for multi-tenant: short provider aliases removed. |
 | v6.5.1 | May 2026 | CPU-demo profile (Faster-Whisper `tiny.en` + Piper + Qwen 0.5B) wired through Admin UI; runtime Device/Compute selectors; Filler Audio + LLM/TTS Overlap runtime toggles; local provider hot-path hardening (no per-frame `_reconnect` blocking). |
 | v6.5.0 | May 2026 | Local LLM tool-gated response (`tool_context`/`tool_result` v2 protocol), Deepgram Flux v2 + nova-3 default, Gemini 3.1 verified, Admin UI Flux tuning panel, #351 / #370 fixes |

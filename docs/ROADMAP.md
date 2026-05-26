@@ -49,6 +49,12 @@ Outbound dialer shipped as Alpha in v5.0.0 — core scheduling, AMD, voicemail d
 | **#351 Google Live barge-in** | Resolved as a documentation issue — production answer is `use_vertex_ai: true`. Architectural silence-gating refactor deferred to v6.6 (the experiment in `1763a441` was reverted in `cead273a` because the AudioSocket forwarding path needs a broader audio-path overhaul). | ✅ Documented |
 | **#370 HTTP-tool-test `.env`-first guard** | Admin UI Environment-page edits to `AAVA_HTTP_TOOL_TEST_*` take effect without an `ai_engine` restart. | ✅ Shipped |
 
+### v6.5.3 — OpenAI Realtime GA migration hotfix (Shipped May 2026)
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **OpenAI Realtime GA defaults** | Flipped shipped `config/ai-agent.yaml` from `api_version: beta` + `gpt-4o-realtime-preview-2024-12-17` to `api_version: ga` + `gpt-realtime`. Required because OpenAI sunset the Realtime Beta API on 2026-05-12 and removed the preview model on 2026-05-07; v6.5.2 and earlier deployments hit `beta_api_shape_disabled` on the first session.update. No code change — the provider's GA wire-protocol path has shipped since v6.0.0. Setup: [docs/MIGRATION.md](MIGRATION.md). | ✅ Shipped |
+
 ### v6.5.2 — xAI Grok provider, multi-instance full-agent providers, Admin UI polish (Shipped May 2026)
 
 | Feature | Description | Status |
@@ -159,4 +165,4 @@ Longer-term goals that will shape the project's direction:
 
 ---
 
-**Last Updated**: May 2026 | **Current Version**: v6.5.2
+**Last Updated**: May 2026 | **Current Version**: v6.5.3

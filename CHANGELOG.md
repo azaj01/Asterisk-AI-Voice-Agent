@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.5.3] - 2026-05-25
+
 ### Fixed
+
+- **OpenAI Realtime: switch shipped default to GA API + `gpt-realtime` model (hotfix)**: OpenAI sunset the Realtime Beta API on 2026-05-12 and removed the `gpt-4o-realtime-preview-2024-12-17` model snapshot on 2026-05-07. The shipped `config/ai-agent.yaml` and `config/ai-agent.example.yaml` were still pinned to `api_version: beta` + the removed preview model, so every v6.5.2 (and earlier) operator using OpenAI Realtime hit `error.code: beta_api_shape_disabled` ("The Realtime Beta API is no longer supported. Please use /v1/realtime for the GA API.") on the first session.update and the WebSocket closed immediately. **No code change required** — `src/providers/openai_realtime.py` has supported GA since v6.0.0 (default in code is `ga`; `_ga_session_type()` helper injects the GA session schema at all 7 session.update call sites; the `OpenAI-Beta: realtime=v1` header is conditionally omitted when `api_version != "beta"`). Fix is a two-line config flip plus the matching update to the operator-facing example doc comment (which previously misled operators into thinking `beta` was the broader-compatibility default). Operators with `api_version: beta` explicitly pinned in their own `ai-agent.local.yaml` must remove that override or change it to `ga`. Refs: [OpenAI deprecations](https://developers.openai.com/api/docs/deprecations), [gpt-realtime model](https://platform.openai.com/docs/models/gpt-realtime).
+
+### Inherited from Unreleased before 6.5.3 tag
 
 - **Outbound recording library `.ULAW` compatibility (#397)**: Recording-library lookup, preview, and listing now resolve uppercase `.ULAW` suffixes while keeping the media basename case-sensitive so distinct Linux filenames such as `Promo.ulaw` and `promo.ulaw` do not collide. Contributed by [@exaland](https://github.com/exaland).
 
@@ -1788,7 +1794,8 @@ Version 4.1 introduces **unified tool calling architecture** enabling AI agents 
 - **v4.0.0** (2025-10-29) - Modular pipeline architecture, production monitoring, golden baselines
 - **v3.0.0** (2025-09-16) - Modular pipeline architecture, file based playback
 
-[Unreleased]: https://github.com/hkjarral/Asterisk-AI-Voice-Agent/compare/v6.5.2...HEAD
+[Unreleased]: https://github.com/hkjarral/Asterisk-AI-Voice-Agent/compare/v6.5.3...HEAD
+[6.5.3]: https://github.com/hkjarral/Asterisk-AI-Voice-Agent/compare/v6.5.2...v6.5.3
 [6.5.2]: https://github.com/hkjarral/Asterisk-AI-Voice-Agent/compare/v6.5.1...v6.5.2
 [6.5.1]: https://github.com/hkjarral/Asterisk-AI-Voice-Agent/compare/v6.5.0...v6.5.1
 [6.5.0]: https://github.com/hkjarral/Asterisk-AI-Voice-Agent/compare/v6.4.2...v6.5.0
