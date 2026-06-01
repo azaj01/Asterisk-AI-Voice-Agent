@@ -81,7 +81,7 @@ const LLM_SUBTYPES: ProviderSubtype[] = [
     yamlType: 'minimax',
     fields: [
       { key: 'chat_base_url', label: 'API Base URL', type: 'text', required: true, default: 'https://api.minimax.io/v1', placeholder: 'https://api.minimax.io/v1' },
-      { key: 'chat_model', label: 'Model', type: 'combobox', required: true, suggestions: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5'] },
+      { key: 'chat_model', label: 'Model', type: 'combobox', required: true, suggestions: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed'] },
       { key: 'api_key', label: 'API Key', type: 'text', required: true, placeholder: '${MINIMAX_API_KEY}' },
       { key: 'temperature', label: 'Temperature', type: 'number', required: false, default: 0.7 },
       { key: 'response_timeout_sec', label: 'Response Timeout (sec)', type: 'number', required: false, default: 30 },

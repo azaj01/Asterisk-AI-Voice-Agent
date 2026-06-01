@@ -1692,8 +1692,8 @@ providers:
       - llm
     chat_base_url: https://api.minimax.io/v1
     # Domestic (China) URL: https://api.minimaxi.com/v1
-    chat_model: MiniMax-M2.7
-    # Alternatives: MiniMax-M2.7-highspeed, MiniMax-M2.5, MiniMax-M2.5-highspeed
+    chat_model: MiniMax-M3
+    # Alternatives: MiniMax-M2.7, MiniMax-M2.7-highspeed
     enabled: false
     # API key comes from MINIMAX_API_KEY env var
     temperature: 1.0

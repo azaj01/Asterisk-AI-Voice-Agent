@@ -361,9 +361,9 @@ For older releases, expand **Previous Versions** below. Full release notes in [C
 ### Additional LLM Providers
 
 - **MiniMax LLM** (High-Performance Cost-Effective)
-   - Local STT/TTS + MiniMax M2.7 LLM with enhanced reasoning and coding.
+   - Local STT/TTS + MiniMax M3 LLM with enhanced reasoning and coding.
    - OpenAI-compatible API with tool-calling support.
-   - Models: `MiniMax-M2.7` (default, latest flagship), `MiniMax-M2.7-highspeed` (low-latency), `MiniMax-M2.5`, `MiniMax-M2.5-highspeed`.
+   - Models: `MiniMax-M3` (default, latest flagship), `MiniMax-M2.7` (previous flagship), `MiniMax-M2.7-highspeed` (low-latency).
    - Activate: set `MINIMAX_API_KEY` in `.env`, then configure `providers.minimax_llm` in `config/ai-agent.yaml` (see the `minimax_llm` section with `enabled: true`).
    - *Best for: Long-context conversations, cost-effective high-performance LLM.*
 
