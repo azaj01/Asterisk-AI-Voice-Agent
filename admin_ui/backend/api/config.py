@@ -1496,6 +1496,37 @@ async def export_configuration(include_secrets: bool = False):
             if env_actually_included:
                 zip_file.write(settings.ENV_PATH, '.env')
 
+            # agents.db snapshot (operator agents config) — via sqlite online backup.
+            # Failure is non-fatal: the YAML files are the primary export; the snapshot
+            # is a convenience. Any open/backup error logs a warning and the export
+            # continues without the snapshot.
+            import sqlite3
+            agents_db = os.environ.get("AGENTS_DB_PATH", "/app/data/operator/agents.db")
+            agents_db_included = False
+            if os.path.exists(agents_db):
+                try:
+                    tmp_name = None
+                    src = sqlite3.connect(f"file:{agents_db}?mode=ro", uri=True)
+                    try:
+                        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tf:
+                            tmp_name = tf.name
+                        disk = sqlite3.connect(tmp_name)
+                        try:
+                            src.backup(disk)
+                        finally:
+                            disk.close()
+                        zip_file.write(tmp_name, "operator/agents.db")
+                        agents_db_included = True
+                    finally:
+                        src.close()
+                        if tmp_name:
+                            try:
+                                os.unlink(tmp_name)
+                            except OSError:
+                                pass
+                except Exception as e:
+                    logger.warning("agents.db snapshot failed — excluded from export: %s", e)
+
             # README explaining what is (and is not) included — three distinct cases:
             # (1) secrets requested and .env present  (2) requested but no .env on disk
             # (3) not requested (default).
@@ -1511,12 +1542,15 @@ async def export_configuration(include_secrets: bool = False):
                 "AVA configuration export\n"
                 f"Created: {datetime.utcnow().isoformat()}Z\n\n"
                 + env_line
+                + ("operator/agents.db contains your agent configurations including prompts.\n" if agents_db_included else "")
             )
             zip_file.writestr("EXPORT_README.txt", readme)
 
             # Add timestamp file
             timestamp = datetime.now().isoformat()
-            zip_file.writestr('backup_info.txt', f'Backup created: {timestamp}\n')
+            zip_file.writestr('backup_info.txt',
+                              f'Backup created: {timestamp}\n'
+                              'operator/agents.db contains your agent configurations including prompts.\n')
         
         zip_buffer.seek(0)
         
