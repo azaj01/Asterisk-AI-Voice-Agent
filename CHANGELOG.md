@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **v7 Agents API/OpenAPI follow-up (#433)**: Exposed the Agents API as a documented OpenAPI contract with typed response models, `GET /api/agents/{slug}`, v7 API metadata, and additive call-history agent aliases (`agent_slug`, `agent_name`) for integrations. Thanks [@YosefAdPro](https://github.com/YosefAdPro) for the contribution.
+
 ## [7.0.0] - 2026-06-14
 
 > ### ⚠️ Upgrade Notes (read before upgrading from 6.x)
